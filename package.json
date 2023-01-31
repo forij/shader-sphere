@@ -1,0 +1,24 @@
+{
+  "name": "shader-sphere",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/forij/shader-sphere.git"
+  },
+  "keywords": [
+    "shader",
+    "webgl",
+    "sphere"
+  ],
+  "author": "Vitaliy Dimov (forij)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/forij/shader-sphere/issues"
+  },
+  "homepage": "https://github.com/forij/shader-sphere#readme"
+}
