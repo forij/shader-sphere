@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+        "moduleResolution": "nodenext",
+        "isolatedModules": true,
+        "target": "es2021",
+        "strict": true  
+    },
+    "include": ["src/**/*"],
+}
