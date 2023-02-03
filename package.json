@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "prebuild": "rm -rf dist",
+    "clear-dist": "rm -rf dist",
+    "prebuild": "npm run clear-dist",
     "check": "tsc --noEmit",
-    "dev": "parcel src/index.html",
+    "dev": "npm run clear-dist && parcel src/index.html",
     "build": "parcel build src/index.html"
   },
   "repository": {
