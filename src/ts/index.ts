@@ -32,7 +32,7 @@ class App {
 
         this.noiseTex = await this.createTexture( noiseImgSrc );
 
-        const sphere = this.createSphere();
+        const sphere = this.createCircle();
 
         sphere.setParent(this.scene);
     }
@@ -92,6 +92,48 @@ class App {
         img.src = src;
         
         return res;
+    }
+
+    public createCircle(){
+        if (!this.sphereShader) {
+            this.sphereShader = this.createSphereShader();
+        }
+
+        const N = 50000;
+
+        const inc = Math.PI * (3 - Math.sqrt(5))
+        const off = 2 / N
+
+        const vertexList = [];
+
+        for (let i = 0; i < N; i++) {
+            const phi = 2 * Math.PI * Math.random();
+            const distance = 0.5 + Math.random() * 0.5;
+
+            const x = Math.cos(phi) * distance; 
+            const y = Math.sin(phi) * distance;
+            const z = Math.random();
+
+            vertexList.push(
+                x,
+                y,
+                z
+            );
+        }
+
+        const vertexArray = new Float32Array(vertexList.length);
+        vertexList.forEach((val: number, index: number) => vertexArray[index] = val);
+
+        const geometry = new Geometry(this.gl, {
+            position: { size: 3, data: vertexArray },
+        });
+        const geometryMesh = new Mesh(this.gl, {
+            mode: this.gl.POINTS,
+            geometry,
+            program: this.sphereShader
+        });
+
+        return geometryMesh;
     }
 
     public createSphere() {

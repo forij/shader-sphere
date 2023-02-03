@@ -13,11 +13,23 @@ void main() {
 
     float speed = 0.07;
 
-    vec2 uvNoise = pos3.xy * 0.5;
+    vec2 uvNoise = pos3.xy * 0.05;
     uvNoise.y += uTime * speed;
     uvNoise.x += uTime * speed;
-    pos3.z *= 1.0 + texture2D(nTex, mod(uvNoise,1.0)).r * 0.5;
+    float noiseValue = 0.5 * texture2D(nTex, mod(uvNoise,1.0)).r;
+
+    noiseValue = pow(noiseValue, 1.0 + pos3.z * 2.0);
+
+    // if(!(0.9 < length(pos3) && length(pos3) < 1.0)){
+    //     pos3 = normalize(pos3) * (1.0 - noiseValue);
+    // }
+
+    float len = length(pos3);
+    // len is 0.5..1
+    // rescale to 0.9..1
+    len = (len - 0.5) * 0.2 + 0.9;
+    pos3 = normalize(pos3) * len * ( 1.0 - noiseValue );
 
     gl_Position = projectionMatrix * modelViewMatrix * vec4(pos3, 1.0);
-    gl_PointSize = 5.0;
+    gl_PointSize = 3.0;
 }
