@@ -2,7 +2,7 @@ import { Renderer, Program, Color, Orbit, Mesh, Camera, Vec3, Transform, Plane, 
 import vertex from '../shaders/vert.glsl';
 import fragment from '../shaders/frag.glsl';
 
-import noiseImgSrc from '../assets/T_Noise_03.png';
+import noiseImgSrc from '../assets/T_Noise_01.png';
 
 class App {
     public renderer: Renderer;
