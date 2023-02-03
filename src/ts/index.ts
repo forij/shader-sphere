@@ -99,7 +99,7 @@ class App {
             this.sphereShader = this.createSphereShader();
         }
 
-        const N = 50000;
+        const N = 100000;
 
         const inc = Math.PI * (3 - Math.sqrt(5))
         const off = 2 / N
@@ -112,7 +112,7 @@ class App {
 
             const x = Math.cos(phi) * distance; 
             const y = Math.sin(phi) * distance;
-            const z = Math.random();
+            const z = Math.random() * 0.1;
 
             vertexList.push(
                 x,

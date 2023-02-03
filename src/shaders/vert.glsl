@@ -20,16 +20,18 @@ void main() {
 
     noiseValue = pow(noiseValue, 1.0 + pos3.z * 2.0);
 
-    // if(!(0.9 < length(pos3) && length(pos3) < 1.0)){
-    //     pos3 = normalize(pos3) * (1.0 - noiseValue);
+    // if(!(1.0 < length(pos3) && length(pos3) < 1.0)){
+    pos3 = normalize(pos3) * (1.0 - noiseValue);
+    pos3.z -= noiseValue;
+    pos3 *= 0.9;
     // }
 
     float len = length(pos3);
     // len is 0.5..1
     // rescale to 0.9..1
-    len = (len - 0.5) * 0.2 + 0.9;
-    pos3 = normalize(pos3) * len * ( 1.0 - noiseValue );
+    // len = (len - 0.5) * 0.2 + 0.9;
+    // pos3 = normalize(pos3) * len * ( 2.0 - noiseValue * 0.1 );
 
     gl_Position = projectionMatrix * modelViewMatrix * vec4(pos3, 1.0);
-    gl_PointSize = 3.0;
+    gl_PointSize = 10.0;
 }
