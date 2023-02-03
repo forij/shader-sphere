@@ -17,7 +17,7 @@ class App {
     public noiseTex: Texture;
 
     async init() {
-        this.renderer = new Renderer({dpr: 3});
+        this.renderer = new Renderer({dpr: 4});
         this.gl = this.renderer.gl;
         document.body.appendChild(this.gl.canvas);
         this.gl.clearColor(0, 0, 0, 0);
@@ -99,7 +99,7 @@ class App {
             this.sphereShader = this.createSphereShader();
         }
 
-        const N = 5000;
+        const N = 50000;
 
         const inc = Math.PI * (3 - Math.sqrt(5))
         const off = 2 / N

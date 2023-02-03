@@ -568,7 +568,7 @@ var _tNoise03PngDefault = parcelHelpers.interopDefault(_tNoise03Png);
 class App {
     async init() {
         this.renderer = new (0, _oglTypescript.Renderer)({
-            dpr: 3
+            dpr: 4
         });
         this.gl = this.renderer.gl;
         document.body.appendChild(this.gl.canvas);
@@ -640,7 +640,7 @@ class App {
     }
     createSphere() {
         if (!this.sphereShader) this.sphereShader = this.createSphereShader();
-        const N = 5000;
+        const N = 50000;
         const inc = Math.PI * (3 - Math.sqrt(5));
         const off = 2 / N;
         const vertexList = [];
@@ -8556,10 +8556,10 @@ class GLTFSkin extends (0, _mesh.Mesh) {
 }
 
 },{"../core/Mesh":"99L4I","../math/Mat4":"2hzaT","../core/Texture":"cKaIX","../Guards":"aXm3u","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"kq7er":[function(require,module,exports) {
-module.exports = "#define GLSLIFY 1\nattribute vec3 position;\nuniform mat4 modelViewMatrix;\nuniform mat4 projectionMatrix;\nvarying vec3 pos3;\nuniform float uTime;\nuniform sampler2D nTex;\nuniform sampler2D nTex2;\n\nvoid main() {\n    pos3 = position;\n\n    float speed = 0.05;\n\n    vec2 uvNoise = pos3.xy * 0.05;\n    uvNoise.y += uTime * speed;\n    uvNoise.x += uTime * speed;\n    pos3.x += texture2D(nTex, mod(uvNoise,1.0)).r;\n\n    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos3, 1.0);\n    gl_PointSize = 5.0;\n}";
+module.exports = "precision highp float;\n#define GLSLIFY 1\n\nattribute vec3 position;\nuniform mat4 modelViewMatrix;\nuniform mat4 projectionMatrix;\nvarying vec3 pos3;\nuniform float uTime;\nuniform sampler2D nTex;\nuniform sampler2D nTex2;\n\nvoid main() {\n    pos3 = position;\n\n    float speed = 0.07;\n\n    vec2 uvNoise = pos3.xy * 0.5;\n    uvNoise.y += uTime * speed;\n    uvNoise.x += uTime * speed;\n    pos3.z *= 1.0 + texture2D(nTex, mod(uvNoise,1.0)).r * 0.5;\n\n    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos3, 1.0);\n    gl_PointSize = 5.0;\n}";
 
 },{}],"c3ZTU":[function(require,module,exports) {
-module.exports = "precision highp float;\n#define GLSLIFY 1\nuniform float uTime;\nvarying vec3 pos3;\n\nvoid main() {\n    gl_FragColor.rgb = 0.5 + pos3 + vec3(0.2, 0.0, 0.1);\n    gl_FragColor.a = 1.0;\n}";
+module.exports = "precision highp float;\n#define GLSLIFY 1\nuniform float uTime;\nvarying vec3 pos3;\n\nvoid main() {\n    gl_FragColor.rgb = 0.5 + vec3(0.5, 0.5, 0.5);\n    gl_FragColor.a = 1.0;\n}";
 
 },{}],"cU3kb":[function(require,module,exports) {
 module.exports = require("dc102036a4688469").getBundleURL("hKh4f") + "T_Noise_03.c5a7b39a.png" + "?" + Date.now();
