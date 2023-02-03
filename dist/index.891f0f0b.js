@@ -563,81 +563,121 @@ var _vertGlsl = require("../shaders/vert.glsl");
 var _vertGlslDefault = parcelHelpers.interopDefault(_vertGlsl);
 var _fragGlsl = require("../shaders/frag.glsl");
 var _fragGlslDefault = parcelHelpers.interopDefault(_fragGlsl);
-const renderer = new (0, _oglTypescript.Renderer)({
-    dpr: 2
-});
-const gl = renderer.gl;
-document.body.appendChild(gl.canvas);
-gl.clearColor(0, 0, 0, 0);
-const camera = new (0, _oglTypescript.Camera)(gl, {
-    fov: 35
-});
-camera.position.set(0, 1, 7);
-camera.lookAt([
-    0,
-    0,
-    0
-]);
-const controls = new (0, _oglTypescript.Orbit)(camera, {
-    target: new (0, _oglTypescript.Vec3)(0, 0, 0)
-});
-function resize() {
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.perspective({
-        aspect: gl.canvas.width / gl.canvas.height
-    });
-}
-window.addEventListener("resize", resize, false);
-resize();
-const scene = new (0, _oglTypescript.Transform)();
-const program = new (0, _oglTypescript.Program)(gl, {
-    vertex: (0, _vertGlslDefault.default),
-    fragment: (0, _fragGlslDefault.default),
-    transparent: true,
-    uniforms: {
-        uTime: {
-            value: 0
+var _tNoise03Png = require("../assets/T_Noise_03.png");
+var _tNoise03PngDefault = parcelHelpers.interopDefault(_tNoise03Png);
+class App {
+    async init() {
+        this.renderer = new (0, _oglTypescript.Renderer)({
+            dpr: 3
+        });
+        this.gl = this.renderer.gl;
+        document.body.appendChild(this.gl.canvas);
+        this.gl.clearColor(0, 0, 0, 0);
+        this.initCamera();
+        window.addEventListener("resize", this.onResize.bind(this), false);
+        this.onResize();
+        this.scene = new (0, _oglTypescript.Transform)();
+        this.noiseTex = await this.createTexture((0, _tNoise03PngDefault.default));
+        const sphere = this.createSphere();
+        sphere.setParent(this.scene);
+    }
+    initCamera() {
+        this.camera = new (0, _oglTypescript.Camera)(this.gl, {
+            fov: 35
+        });
+        this.camera.position.set(0, 1, 7);
+        this.camera.lookAt([
+            0,
+            0,
+            0
+        ]);
+        // @ts-ignore
+        this.orbitControls = new (0, _oglTypescript.Orbit)(this.camera, {
+            target: new (0, _oglTypescript.Vec3)(0, 0, 0)
+        });
+    }
+    onResize() {
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.camera.perspective({
+            aspect: this.gl.canvas.width / this.gl.canvas.height
+        });
+    }
+    createSphereShader() {
+        console.log(this.noiseTex);
+        return new (0, _oglTypescript.Program)(this.gl, {
+            vertex: (0, _vertGlslDefault.default),
+            fragment: (0, _fragGlslDefault.default),
+            transparent: true,
+            uniforms: {
+                uTime: {
+                    value: 0
+                },
+                nTex: {
+                    value: this.noiseTex
+                }
+            }
+        });
+    }
+    update(t) {
+        this.orbitControls.update();
+        this.renderer.render({
+            scene: this.scene,
+            camera: this.camera
+        });
+        if (this.sphereShader) this.sphereShader.uniforms.uTime.value = t * 0.001;
+    }
+    createTexture(src) {
+        const texture = new (0, _oglTypescript.Texture)(this.gl);
+        const img = new Image();
+        const res = new Promise((res)=>{
+            img.onload = ()=>{
+                texture.image = img;
+                res(texture);
+            };
+        });
+        img.src = src;
+        return res;
+    }
+    createSphere() {
+        if (!this.sphereShader) this.sphereShader = this.createSphereShader();
+        const N = 5000;
+        const inc = Math.PI * (3 - Math.sqrt(5));
+        const off = 2 / N;
+        const vertexList = [];
+        for(let i = 0; i < N; i++){
+            const y = i * off - 1 + off / 2;
+            const r2 = 1 - y * y;
+            const r = Math.sqrt(r2);
+            const phi = i * inc;
+            const z = Math.sin(phi) * r;
+            if (z < 0) continue;
+            vertexList.push(Math.cos(phi) * r, y, Math.sin(phi) * r);
         }
+        const vertexArray = new Float32Array(vertexList.length);
+        vertexList.forEach((val, index)=>vertexArray[index] = val);
+        const geometry = new (0, _oglTypescript.Geometry)(this.gl, {
+            position: {
+                size: 3,
+                data: vertexArray
+            }
+        });
+        const geometryMesh = new (0, _oglTypescript.Mesh)(this.gl, {
+            mode: this.gl.POINTS,
+            geometry,
+            program: this.sphereShader
+        });
+        return geometryMesh;
     }
-});
-const N = 1000;
-const vertexArray = new Float32Array(N * 3);
-const inc = Math.PI * (3 - Math.sqrt(5));
-const off = 2 / N;
-for(let i = 0; i < N; i++){
-    const y = i * off - 1 + off / 2;
-    const r = Math.sqrt(1 - y * y);
-    const phi = i * inc;
-    const z = Math.sin(phi) * r;
-    if (z < 0) continue;
-    vertexArray[3 * i + 0] = Math.cos(phi) * r;
-    vertexArray[3 * i + 1] = y;
-    vertexArray[3 * i + 2] = Math.sin(phi) * r;
 }
-const geometry = new (0, _oglTypescript.Geometry)(gl, {
-    position: {
-        size: 3,
-        data: vertexArray
-    }
-});
-const geometryMesh = new (0, _oglTypescript.Mesh)(gl, {
-    mode: gl.POINTS,
-    geometry,
-    program
-});
-geometryMesh.setParent(scene);
+const app = new App();
+app.init();
 requestAnimationFrame(update);
 function update(t) {
     requestAnimationFrame(update);
-    controls.update();
-    renderer.render({
-        scene,
-        camera
-    });
-    program.uniforms.uTime.value = t * 0.001;
+    app.update(t);
 }
 
-},{"ogl-typescript":"vB7m9","../shaders/vert.glsl":"kq7er","../shaders/frag.glsl":"c3ZTU","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"vB7m9":[function(require,module,exports) {
+},{"ogl-typescript":"vB7m9","../shaders/vert.glsl":"kq7er","../shaders/frag.glsl":"c3ZTU","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","../assets/T_Noise_03.png":"cU3kb"}],"vB7m9":[function(require,module,exports) {
 // Core
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
@@ -8516,10 +8556,47 @@ class GLTFSkin extends (0, _mesh.Mesh) {
 }
 
 },{"../core/Mesh":"99L4I","../math/Mat4":"2hzaT","../core/Texture":"cKaIX","../Guards":"aXm3u","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"kq7er":[function(require,module,exports) {
-module.exports = "#define GLSLIFY 1\nattribute vec3 position;\nuniform mat4 modelViewMatrix;\nuniform mat4 projectionMatrix;\nvarying vec3 pos3;\nuniform float uTime;\n\nfloat random (in vec2 st) {\n    return fract(sin(dot(st.xy,\n                         vec2(12.9898,78.233)))\n                 * 43758.5453123);\n}\n\nfloat noise (in vec2 st) {\n    vec2 i = floor(st);\n    vec2 f = fract(st);\n\n    // Four corners in 2D of a tile\n    float a = random(i);\n    float b = random(i + vec2(1.0, 0.0));\n    float c = random(i + vec2(0.0, 1.0));\n    float d = random(i + vec2(1.0, 1.0));\n\n    // Smooth Interpolation\n\n    // Cubic Hermine Curve.  Same as SmoothStep()\n    vec2 u = f*f*(3.0-2.0*f);\n    // u = smoothstep(0.,1.,f);\n\n    // Mix 4 coorners percentages\n    return mix(a, b, u.x) +\n            (c - a)* u.y * (1.0 - u.x) +\n            (d - b) * u.x * u.y;\n}\n\nvoid main() {\n    pos3 = position;\n\n    // pos3.x += noise( vec2(position.x, uTime) );\n    // pos3.y += noise( vec2(uTime, position.y) );\n    // pos3.z += noise( vec2(uTime, position.z) );\n\n    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos3, 1.0);\n    gl_PointSize = 5.0;\n}";
+module.exports = "#define GLSLIFY 1\nattribute vec3 position;\nuniform mat4 modelViewMatrix;\nuniform mat4 projectionMatrix;\nvarying vec3 pos3;\nuniform float uTime;\nuniform sampler2D nTex;\nuniform sampler2D nTex2;\n\nvoid main() {\n    pos3 = position;\n\n    float speed = 0.05;\n\n    vec2 uvNoise = pos3.xy * 0.05;\n    uvNoise.y += uTime * speed;\n    uvNoise.x += uTime * speed;\n    pos3.x += texture2D(nTex, mod(uvNoise,1.0)).r;\n\n    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos3, 1.0);\n    gl_PointSize = 5.0;\n}";
 
 },{}],"c3ZTU":[function(require,module,exports) {
 module.exports = "precision highp float;\n#define GLSLIFY 1\nuniform float uTime;\nvarying vec3 pos3;\n\nvoid main() {\n    gl_FragColor.rgb = 0.5 + pos3 + vec3(0.2, 0.0, 0.1);\n    gl_FragColor.a = 1.0;\n}";
+
+},{}],"cU3kb":[function(require,module,exports) {
+module.exports = require("dc102036a4688469").getBundleURL("hKh4f") + "T_Noise_03.c5a7b39a.png" + "?" + Date.now();
+
+},{"dc102036a4688469":"lgJ39"}],"lgJ39":[function(require,module,exports) {
+"use strict";
+var bundleURL = {};
+function getBundleURLCached(id) {
+    var value = bundleURL[id];
+    if (!value) {
+        value = getBundleURL();
+        bundleURL[id] = value;
+    }
+    return value;
+}
+function getBundleURL() {
+    try {
+        throw new Error();
+    } catch (err) {
+        var matches = ("" + err.stack).match(/(https?|file|ftp|(chrome|moz|safari-web)-extension):\/\/[^)\n]+/g);
+        if (matches) // The first two stack frames will be this function and getBundleURLCached.
+        // Use the 3rd one, which will be a runtime in the original bundle.
+        return getBaseURL(matches[2]);
+    }
+    return "/";
+}
+function getBaseURL(url) {
+    return ("" + url).replace(/^((?:https?|file|ftp|(chrome|moz|safari-web)-extension):\/\/.+)\/[^/]+$/, "$1") + "/";
+} // TODO: Replace uses with `new URL(url).origin` when ie11 is no longer supported.
+function getOrigin(url) {
+    var matches = ("" + url).match(/(https?|file|ftp|(chrome|moz|safari-web)-extension):\/\/[^/]+/);
+    if (!matches) throw new Error("Origin not found");
+    return matches[0];
+}
+exports.getBundleURL = getBundleURLCached;
+exports.getBaseURL = getBaseURL;
+exports.getOrigin = getOrigin;
 
 },{}]},["6oY9T","8tyFx"], "8tyFx", "parcelRequire3fb0")
 

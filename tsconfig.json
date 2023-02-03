@@ -3,7 +3,9 @@
         "moduleResolution": "nodenext",
         "isolatedModules": true,
         "target": "es2021",
-        "strict": true  
+        "strict": true,
+        "strictPropertyInitialization": false,
+        "module": "esnext"
     },
     "include": ["src/**/*"],
 }
