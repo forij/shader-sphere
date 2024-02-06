@@ -13,6 +13,12 @@
     "type": "git",
     "url": "git+https://github.com/forij/shader-sphere.git"
   },
+  "targets": {
+    "default": {
+      "publicUrl": ".",
+      "sourceMap": true
+    }
+  },
   "keywords": [
     "shader",
     "webgl",
